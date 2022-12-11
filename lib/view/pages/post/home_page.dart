@@ -1,17 +1,23 @@
+import 'package:blog/controller/user_controller.dart';
+import 'package:blog/core/routers.dart';
 import 'package:blog/core/size.dart';
+import 'package:blog/domain/device/user_session.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logger/logger.dart';
 
-class HomePage extends StatefulWidget {
+class HomePage extends ConsumerStatefulWidget {
   @override
-  State<HomePage> createState() => _HomePageState();
+  ConsumerState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends ConsumerState<HomePage> {
   var refreshKey = GlobalKey<RefreshIndicatorState>();
   var scaffodKey = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
+    Logger().d("homePage 빌드");
     return Scaffold(
       key: scaffodKey,
       floatingActionButton: FloatingActionButton(
@@ -26,7 +32,7 @@ class _HomePageState extends State<HomePage> {
       ),
       drawer: _navigation(context),
       appBar: AppBar(
-        title: Text("false"),
+        title: _buildAppBarTitle(),
       ),
       body: RefreshIndicator(
         key: refreshKey,
@@ -50,6 +56,14 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Widget _buildAppBarTitle() {
+    if (UserSession.isLogin) {
+      return Text("로그인한 유저 토큰 : ${UserSession.user!.username}");
+    } else {
+      return const Text("로그인 되지 않은 상태입니다.");
+    }
+  }
+
   Widget _navigation(BuildContext context) {
     return Container(
       width: getDrawerWidth(context),
@@ -62,7 +76,9 @@ class _HomePageState extends State<HomePage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TextButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.pushNamed(context, Routers.writeForm);
+                },
                 child: Text(
                   "글쓰기",
                   style: TextStyle(
@@ -75,8 +91,7 @@ class _HomePageState extends State<HomePage> {
               Divider(),
               TextButton(
                 onPressed: () {
-                  //Navigator.pop(context);
-                  scaffodKey.currentState!.openEndDrawer();
+                  Navigator.pushNamed(context, Routers.userInfo);
                 },
                 child: Text(
                   "회원정보보기",
@@ -89,7 +104,10 @@ class _HomePageState extends State<HomePage> {
               ),
               Divider(),
               TextButton(
-                onPressed: () {},
+                onPressed: () async {
+                  Navigator.popAndPushNamed(context, Routers.loginForm);
+                  await ref.read(userController).logout();
+                },
                 child: Text(
                   "로그아웃",
                   style: TextStyle(

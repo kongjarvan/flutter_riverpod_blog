@@ -1,8 +1,14 @@
 import 'package:blog/core/routers.dart';
+import 'package:blog/domain/device/user_session.dart';
+import 'package:blog/domain/user/user.dart';
 import 'package:blog/domain/user/user_api_repository.dart';
+import 'package:blog/dto/auth_req_dto.dart';
+import 'package:blog/dto/response_dto.dart';
 import 'package:blog/main.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logger/logger.dart';
 
 /**
  * view -> Controller 요청
@@ -26,12 +32,44 @@ class UserController {
   Ref _ref;
   final context = navigatorKey.currentContext!;
 
-  void join({
+  Future<void> join({
     required String username,
     required String password,
     required String email,
-  }) {
-    _ref.read(userApiRepositoryProvider).join(username: username, password: password, email: email);
+  }) async {
+    JoinReqDto joinReqDto = JoinReqDto(username: username, password: password, email: email);
+
+    ResponseDto responseDto = await _ref.read(userApiRepositoryProvider).join(joinReqDto);
+
+    if (responseDto.code == 1) {
+      User user = User.fromJson(responseDto.data);
+      print('가입된 유저 이름 : ${user.username}');
+      Navigator.popAndPushNamed(context, Routers.loginForm);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('가입 실패')),
+      );
+    }
+  }
+
+  Future<void> login({
+    required String username,
+    required String password,
+  }) async {
+    LoginReqDto loginReqDto = LoginReqDto(username: username, password: password);
+
+    ResponseDto responseDto = await _ref.read(userApiRepositoryProvider).login(loginReqDto);
+
+    if (responseDto.code == 1) {
+      // User user = User.fromJson(responseDto.data);
+      // print('가입된 유저 이름 : ${user.username}');
+      Logger().d('code: 1');
+      Navigator.popAndPushNamed(context, Routers.home);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('로그인 실패')),
+      );
+    }
   }
 
   void loginForm() {
@@ -40,5 +78,9 @@ class UserController {
 
   void joinForm() {
     Navigator.popAndPushNamed(context, Routers.joinForm);
+  }
+
+  Future<void> logout() async {
+    UserSession.logout();
   }
 }

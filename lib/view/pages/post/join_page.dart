@@ -70,7 +70,9 @@ class JoinPage extends ConsumerWidget {
             },
           ),
           TextButton(
-            onPressed: () {},
+            onPressed: () {
+              uc.loginForm();
+            },
             child: Text("로그인 페이지로 이동"),
           ),
         ],

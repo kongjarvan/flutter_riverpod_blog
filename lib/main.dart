@@ -1,7 +1,7 @@
 import 'package:blog/core/routers.dart';
 import 'package:blog/view/pages/post/detail_page.dart';
 import 'package:blog/view/pages/post/home_page.dart';
-import 'package:blog/view/pages/post/info_page.dart';
+import 'package:blog/view/pages/post/user_info_page.dart';
 import 'package:blog/view/pages/post/join_page.dart';
 import 'package:blog/view/pages/post/login_page.dart';
 import 'package:blog/view/pages/post/update_oage.dart';
@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
-      initialRoute: Routers.joinForm,
+      initialRoute: Routers.home,
       routes: {
         Routers.joinForm: (context) => JoinPage(),
         Routers.loginForm: (context) => LoginPage(),
